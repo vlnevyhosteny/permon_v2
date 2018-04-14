@@ -1,0 +1,9 @@
+{
+	"app": {
+		"name":"PERMON"
+	},
+	"stravaAPI": {
+		"clientId":1234,
+		"secret":"someAppSecret"
+	}
+}
