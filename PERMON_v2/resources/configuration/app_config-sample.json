@@ -4,6 +4,7 @@
 	},
 	"stravaAPI": {
 		"clientId":1234,
-		"secret":"someAppSecret"
+		"secret":"someAppSecret",
+		"scope":"scope"
 	}
 }
