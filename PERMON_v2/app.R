@@ -13,20 +13,12 @@ library(shinyjs)
 library(httr)
 
 source("helpers/configuration.R");
-
 Config <<- getConfig("resources/configuration/app_config.json");
 
 source("helpers/authentication.R");
 
-ui <- fluidPage(
-  verbatimTextOutput("code"),
-  
-  shiny::actionButton(inputId='ab1', label="Loogin", 
-                      icon = icon("th"), 
-                      onclick = sprintf("location.replace('%s', '_blank')", oauth2.0_authorize_url(api, app, scope = scope))),
-  
-  actionButton("logout", "Odhlasit")
-)
+source("ui/base.R");
+source("helpers/userInfo.R");
 
 uiFunc <- function(req) {
     ui
@@ -57,9 +49,8 @@ server <- function(input, output, session) {
     token <- session$userData$stoken;
   }
   
-  username = getUserNameFromToken(token);
-  
-  output$code <- renderText(username)
+  output$User <- renderText(getUserFromToken(token))
+  output$UserImage <- renderUserImageFunc(token);
 }
 
 shinyApp(uiFunc, server)

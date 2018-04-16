@@ -2,11 +2,19 @@ has_auth_code <- function(params) {
   return(!is.null(params$code))
 }
 
-getUserNameFromToken <- function(token) {
+getUserFromToken <- function(token) {
   if(is.null(token)) {
     return("Not logged");
   } else {
-    return(token$credentials$athlete$username);
+    return(token$credentials$athlete$email);
+  }
+}
+
+getUserImageFromToken <- function(token) {
+  if(is.null(token)) {
+    return("");
+  } else {
+    return(token$credentials$athlete$profile);
   }
 }
 
