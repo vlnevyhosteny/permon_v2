@@ -16,48 +16,7 @@ source("helpers/configuration.R");
 
 Config <<- getConfig("resources/configuration/app_config.json");
 
-APP_URL <- if (interactive()) {
-  options(shiny.port = 8100)
-  "http://localhost:8100/"
-} else {
-  "https://servername/path-to-app"
-}
-
-app <- oauth_app(Config$app$name,
-                 key = Config$stravaAPI$clientId,
-                 secret = Config$stravaAPI$secret,
-                 redirect_uri = APP_URL
-)
-
-api <- oauth_endpoint(NULL, "authorize", "token", base_url = "https://www.strava.com/oauth")
-
-scope <- Config$stravaAPI$scope;
-
-has_auth_code <- function(params) {
-  return(!is.null(params$code))
-}
-
-getUserNameFromToken <- function(token) {
-  if(is.null(token)) {
-    return("Not logged");
-  } else {
-    return(token$credentials$athlete$username);
-  }
-}
-
-isTokenSet <- function(session) {
-  if(is.null(session) == FALSE) {
-    if(is.null(session$userData$stoken) == FALSE) {
-      token <- session$userData$stoken;
-      
-      if(is.null(token$credentials) == FALSE) {
-        return(TRUE);
-      }
-    }
-  }
-  
-  return(FALSE);
-}
+source("helpers/authentication.R");
 
 ui <- fluidPage(
   verbatimTextOutput("code"),
@@ -103,5 +62,4 @@ server <- function(input, output, session) {
   output$code <- renderText(username)
 }
 
-# Note that we're using uiFunc, not ui!
 shinyApp(uiFunc, server)
