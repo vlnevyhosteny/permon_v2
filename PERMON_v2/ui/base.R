@@ -8,9 +8,8 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Plot", plotOutput("plot")), 
-        tabPanel("Summary", verbatimTextOutput("summary")), 
-        tabPanel("Table", tableOutput("table"))
+        tabPanel("Activities", DT::dataTableOutput("activitiesTable")), 
+        tabPanel("Summary", verbatimTextOutput("summary"))
       )
     )
   )

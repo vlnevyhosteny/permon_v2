@@ -11,6 +11,7 @@ library(shiny)
 library(rStrava)
 library(shinyjs)
 library(httr)
+library(DT)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -19,6 +20,7 @@ source("helpers/authentication.R");
 
 source("ui/base.R");
 source("helpers/userInfo.R");
+source("helpers/activities.R");
 
 uiFunc <- function(req) {
     ui
@@ -51,6 +53,10 @@ server <- function(input, output, session) {
   
   output$User <- renderText(getUserFromToken(token))
   output$UserImage <- renderUserImageFunc(token);
+  
+  output$activitiesTable = DT::renderDataTable({
+    getActivitiesDataTable(token)
+  })
 }
 
 shinyApp(uiFunc, server)
