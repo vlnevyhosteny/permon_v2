@@ -12,6 +12,8 @@ library(rStrava)
 library(shinyjs)
 library(httr)
 library(DT)
+library(shinysky)
+library(sqldf)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -21,6 +23,8 @@ source("helpers/authentication.R");
 source("ui/base.R");
 source("helpers/userInfo.R");
 source("helpers/activities.R");
+source("helpers/createNewDBIfNotExist.R");
+source("helpers/dao.R");
 
 uiFunc <- function(req) {
     ui
@@ -46,7 +50,7 @@ server <- function(input, output, session) {
     
     session$userData$stoken <- token;
     
-    
+    CreateNewUserIfNotExist(Config$app$dbPath, token$credentials$athlete$id)
   } else {
     token <- session$userData$stoken;
   }

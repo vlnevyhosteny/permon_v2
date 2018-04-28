@@ -1,6 +1,7 @@
 {
 	"app": {
-		"name":"PERMON"
+		"name":"PERMON",
+		"dbPath":"data.db"
 	},
 	"stravaAPI": {
 		"clientId":1234,
