@@ -8,7 +8,9 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Activities", DT::dataTableOutput("activitiesTable")), 
+        tabPanel("Activities", 
+                 busyIndicator(),
+                 DT::dataTableOutput("activitiesTable")), 
         tabPanel("Summary", verbatimTextOutput("summary"))
       )
     )
