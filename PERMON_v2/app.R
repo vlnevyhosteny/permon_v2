@@ -19,6 +19,7 @@ source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
 
 source("helpers/authentication.R");
+source("helpers/dateTimes.R");
 
 source("ui/base.R");
 source("helpers/userInfo.R");
