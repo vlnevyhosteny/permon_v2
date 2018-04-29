@@ -59,7 +59,7 @@ server <- function(input, output, session) {
   output$UserImage <- renderUserImageFunc(token);
   
   output$activitiesTable = DT::renderDataTable({
-    getActivitiesDataTable(token)
+    getActivitiesDataTable(token, Config$app$dbPath, syncWithDb = TRUE)
   })
 }
 

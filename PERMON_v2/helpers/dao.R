@@ -18,14 +18,10 @@ CreateNewUserIfNotExist <- function(dbPath, athleteId) {
 
 GetLatestActivityDateForUser <- function(dbPath, athleteId) {
   db <- dbConnect(SQLite(), dbname=dbPath);
-  query <- paste('select StartDate from Activity where IdUser = ', athleteId,';');
+  query <- paste('select max(StartDate) as StartDate from Activity where IdUser = ', athleteId,';');
   result <- dbGetQuery(db, query);
   
-  if(!length(result)) {
-    return(0);
-  }
-  
-  return(as.integer(result[[1]]));
+  return(as.integer(result$StartDate));
 }
 
 InsertActivity <- function(dbPath, activity) {
@@ -52,14 +48,40 @@ InsertActivities <- function(dbPath, activities) {
     query <- "";
     
     for(activity in activities) {
-      query <- paste(query, 'insert into Activity SELECT ', Activity$Id, ',', Activity$AthleteId, ',\"',
-                   Activity$Type, '\",\"', Activity$Name, '\",', Activity$Distance, ',',Activity$ElapsedTime 
-                   ,',', Activity$StartDateEpoch,', 1, NULL WHERE NOT EXISTS(SELECT 1 FROM Activity WHERE Id='
-                   , Activity$Id, ');');
+      StartDate <- as.integer(as.POSIXct(strptime(activity$start_date_local, "%Y-%m-%dT%XZ")));
+      Name <- gsub("'", "", activity$name)
+      
+      query <- paste('insert into Activity SELECT ', activity$id, ',', activity$athlete$id, ',\'',
+                     activity$type, '\',\'', Name, '\',', activity$distance, ',',activity$elapsed_time 
+                   ,',', StartDate,', 1, NULL WHERE NOT EXISTS(SELECT 1 FROM Activity WHERE Id='
+                   , activity$id, ');');
+      
+      dbGetQuery(db, query)
     }
-    
-    print(query);
-    
-    dbGetQuery(db, query)
   }
+}
+
+GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
+  ## Get list of activities from ./Data.db by Activity Ids.
+  db <- dbConnect(SQLite(), dbname=dbPath);
+  
+  #Activity
+  query <- paste("select * from Activity where IdUser in (", athleteId, ');');
+  result <- dbGetQuery(db, query);
+  
+  #Streams
+  #query <- paste("select * from ActivityPoint where ActivityId in (", IdsInString, ');');
+  #Streams <- dbGetQuery(db, query);
+  
+  Activities <- vector("list", nrow(result));
+  for(i in 1:nrow(result)) {
+    activity <- result[i,];
+    UserId <- result[i,'IdUser'];
+    #Stream <- Streams[Streams$ActivityId == result[i, 'Id'],]
+    Activity <- list(UserId = UserId, Activity = activity);
+    
+    Activities[i] <- list(Activity);
+  }
+  
+  return(Activities);
 }

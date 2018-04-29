@@ -1,4 +1,4 @@
-getActivitiesAfter <- function(stoken, epoch) {
+getActivitiesAfterStrava <- function(stoken, epoch) {
   url_ <- paste(url_athlete(),"/activities", sep = "")
   url_ <- paste(url_, "?after=", sep="")
   url_ <- paste(url_, epoch, sep="")
@@ -10,9 +10,9 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   if(syncWithDb == FALSE) {
     activitiesRaw <- get_activity_list(stoken);
   } else {
-    lastestActivity <- GetLatestActivityDateForUser(stoken$credentials$athlete$id)
+    lastestActivity <- GetLatestActivityDateForUser(dbPath, stoken$credentials$athlete$id)
     
-    activitiesRaw <- getActivitiesAfter(stoken, lastestActivity);
+    activitiesRaw <- getActivitiesAfterStrava(stoken, lastestActivity);
   }
   
   InsertActivities(dbPath, activitiesRaw);
@@ -20,14 +20,16 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   activities <- data.frame(name = character(), type = character(), date = character(), 
                            distance = double(), stringsAsFactors = FALSE);
   
-  #TODO: load activities from DB
+  browser()
   
-  for (act in activitiesRaw) {
+  activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
+  
+  for (act in activitiesLocal) {
     
-    activities[nrow(activities) + 1,] = list(name = act$name, 
-                                             type = act$type,
-                                             date = act$start_date_local, 
-                                             distance = (act$distance / 1000))
+    activities[nrow(activities) + 1,] = list(name = act$Activity$Name, 
+                                             type = act$Activity$Type,
+                                             date = act$Activity$StartDate, 
+                                             distance = (act$Activity$Distance / 1000))
     
   }
   
