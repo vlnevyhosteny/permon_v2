@@ -17,7 +17,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   
   InsertActivities(dbPath, activitiesRaw);
   
-  activities <- data.frame(Name = character(), Type = character(), Date = character(), 
+  activities <- data.frame(Id = numeric(), Name = character(), Type = character(), Date = character(), 
                            Distance = double(), stringsAsFactors = FALSE);
   
   activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
@@ -25,7 +25,8 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   browser()  
 
   for (act in activitiesLocal) {
-    activities[nrow(activities) + 1,] = list(Name = act$Activity$Name, 
+    activities[nrow(activities) + 1,] = list(Id = act$Activity$Id,
+                                             Name = act$Activity$Name, 
                                              Type = act$Activity$Type,
                                              Date = convertEpochToDateTime(act$Activity$StartDate), 
                                              Distance = paste(round((act$Activity$Distance / 1000), 2), " km"))

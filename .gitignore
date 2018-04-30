@@ -44,3 +44,4 @@ vignettes/*.pdf
 PERMON_v2/playground
 .Rproj.user
 app_config.json
+*.db
