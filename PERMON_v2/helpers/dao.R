@@ -85,3 +85,37 @@ GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
   
   return(Activities);
 }
+
+InsertStream <- function(dbPath, Stream, ActivityId) {
+  db <- dbConnect(SQLite(), dbname=dbPath)
+
+  query <- paste("select count(*) from ActivityPoint where ActivityId =", ActivityId, ";")
+  
+  streamCount <- as.integer(dbGetQuery(db, query))
+  
+  if(streamCount > 0) {
+    query <- paste("delete from ActivityPoint where ActivityId=", ActivityId, ";")
+    dbGetQuery(db, query)
+  }
+  
+  query <- "PRAGMA foreign_keys = ON;"
+  dbGetQuery(db, query)
+  
+  query <- "insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values "
+  
+  Stream[is.na(Stream)] <- 0
+  
+  for (i in 1:nrow(Stream)) {
+    row <- Stream[i,]
+    
+    subQuery <- paste('(', row[1,"Lat"], ',', row[1,"Lng"], ',', row[1,"Time"], ',', row[1,"Distance"],
+                      ',', row[1,"Alt"], ',', row[1,"Heartrate"], ',', row[1,"Grade"], ',', ActivityId, "),")
+    
+    query <- paste(query, subQuery)
+  }
+  
+  query <- substr(query, 1, nchar(query) - 1)
+  query <- paste(query, ";")
+  
+  result <- dbGetQuery(db, query)
+}

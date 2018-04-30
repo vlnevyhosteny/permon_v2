@@ -1,4 +1,5 @@
 source("ui/sideBarUserInfo.R");
+source("ui/activitiesDataTable.R")
 
 ui <- fluidPage(
   
@@ -8,9 +9,7 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Activities", 
-                 busyIndicator(),
-                 DT::dataTableOutput("activitiesTable")), 
+        activitiesPanel, 
         tabPanel("Summary", verbatimTextOutput("summary"))
       )
     )

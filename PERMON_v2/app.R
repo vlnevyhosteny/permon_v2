@@ -22,6 +22,7 @@ source("helpers/authentication.R");
 source("helpers/dateTimes.R");
 
 source("ui/base.R");
+
 source("helpers/userInfo.R");
 source("helpers/activities.R");
 source("helpers/createNewDBIfNotExist.R");
@@ -33,6 +34,8 @@ uiFunc <- function(req) {
 
 server <- function(input, output, session) {
 
+  # ---- AUTH ----
+  
   token <- NULL;
   params <- parseQueryString(isolate(session$clientData$url_search))
   
@@ -56,11 +59,21 @@ server <- function(input, output, session) {
     token <- session$userData$stoken;
   }
   
+  # --------------
+  
   output$User <- renderText(getUserFromToken(token))
   output$UserImage <- renderUserImageFunc(token);
   
+  activities <- getActivitiesDataTable(token, Config$app$dbPath, syncWithDb = TRUE)
+  
   output$activitiesTable = DT::renderDataTable({
-    getActivitiesDataTable(token, Config$app$dbPath, syncWithDb = TRUE)
+    activities
+  })
+  
+  observeEvent(input$importStream, {
+    if(is.null(token) == FALSE) {
+      downloadActivitiesStreams(token, input$activitiesTable_rows_selected, activities, Config$app$dbPath)
+    }
   })
 }
 
