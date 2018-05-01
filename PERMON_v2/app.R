@@ -14,6 +14,7 @@ library(httr)
 library(DT)
 library(shinysky)
 library(sqldf)
+library(loggit)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -27,6 +28,9 @@ source("helpers/userInfo.R");
 source("helpers/activities.R");
 source("helpers/createNewDBIfNotExist.R");
 source("helpers/dao.R");
+
+setLogFile(Config$app$logFilePath);
+loggit("INFO", "PERMON has started", file = "app.R")
 
 uiFunc <- function(req) {
     ui
@@ -55,6 +59,8 @@ server <- function(input, output, session) {
     session$userData$stoken <- token;
     
     CreateNewUserIfNotExist(Config$app$dbPath, token$credentials$athlete$id)
+    
+    loggit("INFO", "User logged in", User = token$credentials$athlete$id, file = "app.R");
   } else {
     token <- session$userData$stoken;
   }

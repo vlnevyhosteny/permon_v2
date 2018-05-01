@@ -12,15 +12,39 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   } else {
     lastestActivity <- GetLatestActivityDateForUser(dbPath, stoken$credentials$athlete$id)
     
-    activitiesRaw <- getActivitiesAfterStrava(stoken, lastestActivity);
+    loggit("INFO", "Activities after date requested.", date = lastestActivity, file = "activities.R");
+    
+    activitiesRaw <- NULL;
+    
+    tryCatch({
+      activitiesRaw <- getActivitiesAfterStrava(stoken, lastestActivity);
+      loggit("INFO", "Activities downloaded.", count = length(activitiesRaw), file = "activities.R");
+    }, error = function(e) {
+      loggit("ERROR", "Problem with downloading data", error = e, file = "activities.R");
+      #TODO: message 
+    });
   }
   
-  InsertActivities(dbPath, activitiesRaw);
+  if(is.null(activitiesRaw) == FALSE) {
+    tryCatch({
+      InsertActivities(dbPath, activitiesRaw);
+      loggit("INFO", "Downloaded activities insert to DB.", file = "activities.R");
+    }, error = function(e) {
+      loggit("ERROR", "Problem with inserting new activities", error = e, file = "activities.R");
+      #TODO: message 
+    })
+  }
   
   activities <- data.frame(Id = numeric(), Name = character(), Type = character(), Date = character(), 
                            Distance = double(), stringsAsFactors = FALSE);
   
-  activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
+  tryCatch({
+    activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
+    loggit("INFO", "Activities selected from DB.", count = length(activitiesLocal), file = "activities.R");
+  }, error = function(e) {
+    loggit("ERROR", "Problem with selecting activities from DB", error = e, file = "activities.R");
+    return();
+  })
   
   for (act in activitiesLocal) {
     activities[nrow(activities) + 1,] = list(Id = act$Activity$Id,

@@ -45,3 +45,4 @@ PERMON_v2/playground
 .Rproj.user
 app_config.json
 *.db
+log.json
