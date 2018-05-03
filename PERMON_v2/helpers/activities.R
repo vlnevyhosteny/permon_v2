@@ -64,7 +64,6 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   streamTypes <- list("latlng","altitude","heartrate","time","grade_smooth")
   
   for(index in selection) {
-    browser();
     tryCatch({
       stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
       stream <- convertStreamRawToDataFrame(stream);
@@ -91,7 +90,7 @@ convertStreamRawToDataFrame <- function(streamRaw) {
                        stringsAsFactors = FALSE);
   
   for(i in 1:streamRaw[[1]]$original_size) {
-    Lat <- ""; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "-1";
+    Lat <- "-1"; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "0";
     
     for(j in 1:length(streamRaw)) {
       if(streamRaw[[j]]$type == 'latlng') {
