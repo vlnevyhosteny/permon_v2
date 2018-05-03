@@ -64,7 +64,7 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   streamTypes <- list("latlng","altitude","heartrate","time","grade_smooth")
   
   for(index in selection) {
-
+    browser();
     tryCatch({
       stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
       stream <- convertStreamRawToDataFrame(stream);
