@@ -28,6 +28,7 @@ source("helpers/userInfo.R");
 source("helpers/activities.R");
 source("helpers/createNewDBIfNotExist.R");
 source("helpers/dao.R");
+source("helpers/exceptions.R");
 
 setLogFile(Config$app$logFilePath);
 loggit("INFO", "PERMON has started", file = "app.R")

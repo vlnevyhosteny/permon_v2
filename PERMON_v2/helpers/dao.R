@@ -8,7 +8,7 @@ CreateNewUserIfNotExist <- function(dbPath, athleteId) {
   
   if(userCount == 0) {
     query <- paste("insert into User values (", athleteId, ", 180, 40, 1.0, 1.8, 49, 11, 0);")
-    dbGetQuery(db, query)
+    dbExecute(db, query)
     
     print("User created")
   } else {
@@ -33,13 +33,13 @@ InsertActivity <- function(dbPath, activity) {
   if(nrow(DBActivity) > 0) {
     #Update activity
     query <- paste("delete from Activity where Id =", Activity$Id)
-    DBActivity <- dbGetQuery(db, query)
+    DBActivity <- dbExecute(db, query)
   } 
   
   query <- paste('insert into Activity values (', Activity$Id, ',', Activity$AthleteId, ',\"',
                  Activity$Type, '\",\"', Activity$Name, '\",', Activity$Distance, ',',Activity$ElapsedTime ,',', Activity$StartDateEpoch,', 1, NULL);')
   
-  dbGetQuery(db, query)
+  dbExecute(db, query)
 }
 
 InsertActivities <- function(dbPath, activities) {
@@ -56,7 +56,7 @@ InsertActivities <- function(dbPath, activities) {
                    ,',', StartDate,', 1, NULL WHERE NOT EXISTS(SELECT 1 FROM Activity WHERE Id='
                    , activity$id, ');');
       
-      dbGetQuery(db, query)
+      dbExecute(db, query)
     }
   }
 }
@@ -95,11 +95,11 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
   
   if(streamCount > 0) {
     query <- paste("delete from ActivityPoint where ActivityId=", ActivityId, ";")
-    dbGetQuery(db, query)
+    dbExecute(db, query)
   }
   
   query <- "PRAGMA foreign_keys = ON;"
-  dbGetQuery(db, query)
+  dbExecute(db, query)
   
   query <- "insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values "
   
@@ -117,5 +117,5 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
   query <- substr(query, 1, nchar(query) - 1)
   query <- paste(query, ";")
   
-  result <- dbGetQuery(db, query)
+  result <- dbExecute(db, query)
 }

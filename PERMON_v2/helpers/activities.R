@@ -20,7 +20,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       activitiesRaw <- getActivitiesAfterStrava(stoken, lastestActivity);
       loggit("INFO", "Activities downloaded.", count = length(activitiesRaw), file = "activities.R");
     }, error = function(e) {
-      loggit("ERROR", "Problem with downloading data", error = e, file = "activities.R");
+      loggit("ERROR", "Problem with downloading data", error = ExceptionToString(e), file = "activities.R");
       #TODO: message 
     });
   }
@@ -30,7 +30,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       InsertActivities(dbPath, activitiesRaw);
       loggit("INFO", "Downloaded activities insert to DB.", file = "activities.R");
     }, error = function(e) {
-      loggit("ERROR", "Problem with inserting new activities", error = e, file = "activities.R");
+      loggit("ERROR", "Problem with inserting new activities", error = ExceptionToString(e), file = "activities.R");
       #TODO: message 
     })
   }
@@ -42,7 +42,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
     activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
     loggit("INFO", "Activities selected from DB.", count = length(activitiesLocal), file = "activities.R");
   }, error = function(e) {
-    loggit("ERROR", "Problem with selecting activities from DB", error = e, file = "activities.R");
+    loggit("ERROR", "Problem with selecting activities from DB", error = ExceptionToString(e), file = "activities.R");
     return();
   })
   
@@ -64,12 +64,23 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   streamTypes <- list("latlng","altitude","heartrate","time","grade_smooth")
   
   for(index in selection) {
-    stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
-    stream <- convertStreamRawToDataFrame(stream);
-    
-    InsertStream(dbPath, stream, activitiesAll[index,]$Id);
-    
-    print(paste(activitiesAll[index,]$Name, "'s stream downloaded"));
+    tryCatch({
+      stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
+      stream <- convertStreamRawToDataFrame(stream);
+      
+      InsertStream(dbPath, stream, activitiesAll[index,]$Id);
+      
+      loggit("INFO", paste("Activity stream has been downloaded and inserted.", activityId = activitiesAll[index,]$Id),
+             file = "activities.R");
+      
+      #TODO: progress
+    }, error = function(e) {
+
+      loggit("ERROR", paste("Problem with downloading activity stream from DB", activityId = activitiesAll[index,]$Id),
+             error = ExceptionToString(e), 
+             file = "activities.R");
+      #TODO: Message
+    })
   }
 }
 
@@ -79,7 +90,7 @@ convertStreamRawToDataFrame <- function(streamRaw) {
                        stringsAsFactors = FALSE);
   
   for(i in 1:streamRaw[[1]]$original_size) {
-    Lat <- ""; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "-1";
+    Lat <- "-1"; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "0";
     
     for(j in 1:length(streamRaw)) {
       if(streamRaw[[j]]$type == 'latlng') {
