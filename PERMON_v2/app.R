@@ -31,6 +31,8 @@ source("helpers/createNewDBIfNotExist.R");
 source("helpers/dao.R");
 source("helpers/exceptions.R");
 
+source("calc/trainingImpulsePerformanceCalc.R")
+
 setLogFile(Config$app$logFilePath);
 loggit("INFO", "PERMON has started", file = "app.R")
 
