@@ -36,7 +36,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   }
   
   activities <- data.frame(Id = numeric(), Name = character(), Type = character(), Date = character(), 
-                           Distance = double(), stringsAsFactors = FALSE);
+                           Distance = double(), HasStream = character(), stringsAsFactors = FALSE);
   
   tryCatch({
     activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
@@ -47,11 +47,17 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   })
   
   for (act in activitiesLocal) {
+    HasStream <- "FALSE";
+    if(act$Activity$HasStream) {
+      HasStream <- "TRUE";
+    }
+    
     activities[nrow(activities) + 1,] = list(Id = act$Activity$Id,
                                              Name = act$Activity$Name, 
                                              Type = act$Activity$Type,
                                              Date = convertEpochToDateTime(act$Activity$StartDate), 
-                                             Distance = paste(round((act$Activity$Distance / 1000), 2), " km"))
+                                             Distance = paste(round((act$Activity$Distance / 1000), 2), " km"),
+                                             HasStream = HasStream);
     
   }
   
@@ -66,7 +72,7 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   for(index in selection) {
     tryCatch({
       stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
-      stream <- convertStreamRawToDataFrame(stream);
+      stream <- convertStreamRawToDataFrame(stream, activitiesAll[index,]$Id);
       
       InsertStream(dbPath, stream, activitiesAll[index,]$Id);
       
@@ -84,39 +90,49 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   }
 }
 
-convertStreamRawToDataFrame <- function(streamRaw) {
-  stream <- data.frame(Lat = character(), Lng = character(), Time = character(), Distance = character(),
-                       Alt = character(), Heartrate = character(), Grade = character(),
-                       stringsAsFactors = FALSE);
+convertStreamRawToDataFrame <- function(streamRaw, activityId) {
+  rows <- streamRaw[[1]]$original_size;
   
-  for(i in 1:streamRaw[[1]]$original_size) {
-    Lat <- "-1"; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "0";
-    
-    for(j in 1:length(streamRaw)) {
-      if(streamRaw[[j]]$type == 'latlng') {
-        Lat = streamRaw[[j]]$data[[i]][[1]];
-        Lng = streamRaw[[j]]$data[[i]][[2]];
-      } else if(streamRaw[[j]]$type == 'time') {
-        Time = streamRaw[[j]]$data[[i]];
-      } else if(streamRaw[[j]]$type == 'distance') {
-        Distance = streamRaw[[j]]$data[[i]];
-      } else if(streamRaw[[j]]$type == 'altitude') {
-        Alt = streamRaw[[j]]$data[[i]];
-      } else if(streamRaw[[j]]$type == 'grade_smooth') {
-        Grade = streamRaw[[j]]$data[[i]];
-      } else if(streamRaw[[j]]$type == 'heartrate') {
-        Heartrate = streamRaw[[j]]$data[[i]];
-      }
+  stream <- data.frame(Id = integer(rows), Lat = character(rows), Lng = character(rows), Time = character(rows),
+                       Distance = character(rows), Alt = character(rows), Heartrate = character(rows),
+                       Grade = character(rows), ActivityId = integer(rows), stringsAsFactors = FALSE);
+  
+  Id <- rep(NA, rows);
+  Lat <- rep(-1, rows);
+  Lng <- rep(-1, rows);
+  Time <- rep(-1, rows);
+  Distance <- rep(-1, rows);
+  Alt <- rep(-1, rows);
+  Heartrate <- rep(-1, rows);
+  Grade <- rep(0, rows);
+  ActivityId <- rep(activityId, rows);
+  
+  for(j in 1:length(streamRaw)) {
+    if(streamRaw[[j]]$type == 'latlng') {
+      Lat = lapply(streamRaw[[j]]$data, function(x) x[[1]]);
+      Lng = lapply(streamRaw[[j]]$data, function(x) x[[2]]);
+    } else if(streamRaw[[j]]$type == 'time') {
+      Time = streamRaw[[j]]$data;
+    } else if(streamRaw[[j]]$type == 'distance') {
+      Distance = streamRaw[[j]]$data;
+    } else if(streamRaw[[j]]$type == 'altitude') {
+      Alt = streamRaw[[j]]$data;
+    } else if(streamRaw[[j]]$type == 'grade_smooth') {
+      Grade = streamRaw[[j]]$data;
+    } else if(streamRaw[[j]]$type == 'heartrate') {
+      Heartrate = streamRaw[[j]]$data;
     }
-    
-    stream[nrow(stream) + 1,] = list(Lat = Lat,
-                                     Lng = Lng,
-                                     Time = Time,
-                                     Distance = Distance,
-                                     Alt = Alt,
-                                     Heartrate = Heartrate,
-                                     Grade = Grade);
   }
+  
+  stream$Id <- Id;
+  stream$Lat <- Lat;
+  stream$Lng <- Lng;
+  stream$Time <- Time;
+  stream$Distance <- Distance;
+  stream$Alt <- Alt;
+  stream$Heartrate <- Heartrate;
+  stream$Grade <- Grade;
+  stream$ActivityId <- ActivityId;
   
   return(stream);
 }

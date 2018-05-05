@@ -47,6 +47,8 @@ InsertActivities <- function(dbPath, activities) {
     db <- dbConnect(SQLite(), dbname=dbPath)
     query <- "";
     
+    dbExecute(db, "BEGIN")
+    
     for(activity in activities) {
       StartDate <- as.integer(as.POSIXct(strptime(activity$start_date_local, "%Y-%m-%dT%XZ")));
       Name <- gsub("'", "", activity$name)
@@ -58,6 +60,8 @@ InsertActivities <- function(dbPath, activities) {
       
       dbExecute(db, query)
     }
+    
+    dbExecute(db, "END")
   }
 }
 
@@ -66,7 +70,9 @@ GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
   db <- dbConnect(SQLite(), dbname=dbPath);
   
   #Activity
-  query <- paste("select * from Activity where IdUser in (", athleteId, ');');
+  query <- paste("select a.*, case when p.Id is not null then 1 else 0 end as HasStream  from Activity",
+                 " a left join ActivityPoint p on p.ActivityId = a.Id where IdUser in (", athleteId, ') group by a.Id;');
+  
   result <- dbGetQuery(db, query);
   
   #Streams
@@ -86,9 +92,14 @@ GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
   return(Activities);
 }
 
+ToStreamInsertQuery <- function(x) {
+  paste("insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values (",
+        x$Lat, ',', x$Lng, ',"', x$Time, '","', x$Distance, '",', x$Alt, ',', x$Heartrate, ',"', x$Grade, '",', x$ActivityId, ");")
+}
+
 InsertStream <- function(dbPath, Stream, ActivityId) {
   db <- dbConnect(SQLite(), dbname=dbPath)
-
+  
   query <- paste("select count(*) from ActivityPoint where ActivityId =", ActivityId, ";")
   
   streamCount <- as.integer(dbGetQuery(db, query))
@@ -98,24 +109,13 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
     dbExecute(db, query)
   }
   
-  query <- "PRAGMA foreign_keys = ON;"
-  dbExecute(db, query)
+  queries <- apply(Stream, 1, ToStreamInsertQuery)
   
-  query <- "insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values "
+  dbExecute(db, "BEGIN TRANSACTION;")
   
-  Stream[is.na(Stream)] <- 0
-  
-  for (i in 1:nrow(Stream)) {
-    row <- Stream[i,]
-    
-    subQuery <- paste('(', row[1,"Lat"], ',', row[1,"Lng"], ',', row[1,"Time"], ',', row[1,"Distance"],
-                      ',', row[1,"Alt"], ',', row[1,"Heartrate"], ',', row[1,"Grade"], ',', ActivityId, "),")
-    
-    query <- paste(query, subQuery)
+  for(query in queries) {
+    dbExecute(db, query);
   }
   
-  query <- substr(query, 1, nchar(query) - 1)
-  query <- paste(query, ";")
-  
-  result <- dbExecute(db, query)
+  dbExecute(db, "COMMIT;");
 }

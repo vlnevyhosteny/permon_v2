@@ -46,3 +46,4 @@ PERMON_v2/playground
 app_config.json
 *.db
 log.json
+data.db-journal

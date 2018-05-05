@@ -8,6 +8,5 @@ sideBarUserInfo <- sidebarPanel(
   
   shiny::actionButton(inputId='login', label="Logout", 
                       icon = icon("sign-out-alt"), 
-                      onclick = sprintf("location.replace('%s', '_blank')", oauth2.0_authorize_url(api, app, scope = scope))),
-  busyIndicator()
+                      onclick = sprintf("location.replace('%s', '_blank')", oauth2.0_authorize_url(api, app, scope = scope)))
 )

@@ -3,6 +3,10 @@ source("ui/activitiesDataTable.R")
 
 ui <- fluidPage(
   
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "base.css")
+  ),
+  
   titlePanel("PERMON"),
   
   sidebarLayout(sideBarUserInfo,
