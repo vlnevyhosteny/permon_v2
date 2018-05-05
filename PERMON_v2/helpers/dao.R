@@ -92,6 +92,11 @@ GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
   return(Activities);
 }
 
+ToStreamInsertQuery <- function(x) {
+  paste("insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values (",
+        x$Lat, ',', x$Lng, ',"', x$Time, '","', x$Distance, '",', x$Alt, ',', x$Heartrate, ',"', x$Grade, '",', x$ActivityId, ");")
+}
+
 InsertStream <- function(dbPath, Stream, ActivityId) {
   db <- dbConnect(SQLite(), dbname=dbPath)
   
@@ -103,6 +108,14 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
     query <- paste("delete from ActivityPoint where ActivityId=", ActivityId, ";")
     dbExecute(db, query)
   }
-
-  RSQLite::dbWriteTable(db, "ActivityPoint", playStream, append = TRUE, row.names=FALSE)
+  
+  queries <- apply(Stream, 1, ToStreamInsertQuery)
+  
+  dbExecute(db, "BEGIN TRANSACTION;")
+  
+  for(query in queries) {
+    dbExecute(db, query);
+  }
+  
+  dbExecute(db, "COMMIT;");
 }
