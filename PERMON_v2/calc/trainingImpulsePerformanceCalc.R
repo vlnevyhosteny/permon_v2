@@ -211,7 +211,7 @@ PerformanceBanisterModel <- function(dbPath, From, To, UserId, Male = TRUE,
   return(list(Performance = Performance, Fitness = Fitness, Fatigue = Fatigue, TRIMP = TRIMP));
 }
 
-#' Funkce, která vykresluje složky Banistrova modelu proložené klouzavím průměrem.
+#' Funkce, která vykresluje složky Banistrova modelu proložené klouzavym průměrem.
 #'
 #' @param Model Struktura reprezentující Banistrův model.
 #' @param Save Boolean hodnota, v případě TRUE dojde k uložení výsledného grafu.
