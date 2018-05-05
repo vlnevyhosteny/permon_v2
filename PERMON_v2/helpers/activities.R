@@ -71,8 +71,10 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   
   for(index in selection) {
     tryCatch({
+      browser()
+      
       stream <- get_streams(stoken, activitiesAll[index,]$Id, types = streamTypes);
-      stream <- convertStreamRawToDataFrame(stream);
+      stream <- convertStreamRawToDataFrame(stream, activitiesAll[index,]$Id);
       
       InsertStream(dbPath, stream, activitiesAll[index,]$Id);
       
@@ -90,10 +92,10 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
   }
 }
 
-convertStreamRawToDataFrame <- function(streamRaw) {
-  stream <- data.frame(Lat = character(), Lng = character(), Time = character(), Distance = character(),
-                       Alt = character(), Heartrate = character(), Grade = character(),
-                       stringsAsFactors = FALSE);
+convertStreamRawToDataFrame <- function(streamRaw, activityId) {
+  stream <- data.frame(Id = integer(), Lat = character(), Lng = character(), Time = character(),
+                       Distance = character(), Alt = character(), Heartrate = character(),
+                       Grade = character(), ActivityId = integer(), stringsAsFactors = FALSE);
   
   for(i in 1:streamRaw[[1]]$original_size) {
     Lat <- "-1"; Lng <- "-1"; Time <- "-1"; Distance <- "-1"; Alt <- "-1"; Heartrate <- "-1"; Grade <- "0";
@@ -115,13 +117,15 @@ convertStreamRawToDataFrame <- function(streamRaw) {
       }
     }
     
-    stream[nrow(stream) + 1,] = list(Lat = Lat,
+    stream[nrow(stream) + 1,] = list(Id = NA,
+                                     Lat = Lat,
                                      Lng = Lng,
                                      Time = Time,
                                      Distance = Distance,
                                      Alt = Alt,
                                      Heartrate = Heartrate,
-                                     Grade = Grade);
+                                     Grade = Grade,
+                                     ActivityId = activityId);
   }
   
   return(stream);

@@ -15,6 +15,7 @@ library(DT)
 library(shinysky)
 library(sqldf)
 library(loggit)
+library(RSQLite)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
