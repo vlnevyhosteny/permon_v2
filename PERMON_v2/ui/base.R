@@ -1,5 +1,6 @@
 source("ui/sideBarUserInfo.R");
 source("ui/activitiesDataTable.R")
+source("ui/bannisterTabPanel.R")
 
 ui <- fluidPage(
   
@@ -8,14 +9,13 @@ ui <- fluidPage(
   ),
   
   titlePanel("PERMON"),
+  busyIndicator(),
   
   sidebarLayout(sideBarUserInfo,
-    
     mainPanel(
       tabsetPanel(
         activitiesPanel, 
-        tabPanel("Summary", verbatimTextOutput("summary"))
-      )
+        bannisterPanel)
     )
   )
 )

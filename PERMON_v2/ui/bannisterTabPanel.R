@@ -1,0 +1,21 @@
+bannisterPanel <- tabPanel("Bannister's model", 
+                            dateRangeInput('banisterDateRange',
+                                           label = 'Datum: ',
+                                           start = Sys.Date() - 30, end = Sys.Date(),
+                                           format = "dd/mm/yy"
+                            ),
+                            textOutput("TextMessage"), 
+                            plotOutput("BanisterPlot"),
+                            numericInput("MinHr", "Min HR", min = 0, max = 200, step = 1, value = 50),
+                            numericInput("MaxHr", "Max HR", min = 51, max = 250, step = 1, value = 180),
+                            numericInput("k1", "k1 const", min = 0.1, step = 0.1, value = 1.0),
+                            numericInput("k2", "k2 const", min = 0.1, step = 0.1, value = 1.8),
+                            numericInput("r1", "r1 const", min = 0.1, step = 0.1, value = 49),
+                            numericInput("r2", "r2 const", min = 0.1, step = 0.1, value = 11),
+                            numericInput("p0", "Performance base", min = 0, step = 1, value = 0),
+                            radioButtons("sex", "Sex",
+                                         c(Male = TRUE,
+                                           Female = FALSE), 
+                                         TRUE),
+                            actionButton("Update", "Update Settings")
+)

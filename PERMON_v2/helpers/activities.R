@@ -21,7 +21,12 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       loggit("INFO", "Activities downloaded.", count = length(activitiesRaw), file = "activities.R");
     }, error = function(e) {
       loggit("ERROR", "Problem with downloading data", error = ExceptionToString(e), file = "activities.R");
-      #TODO: message 
+      
+      showNotification(
+        "Problem with downloading new data.",
+        duration = 10, 
+        type = "error"
+      )
     });
   }
   
@@ -31,7 +36,12 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       loggit("INFO", "Downloaded activities insert to DB.", file = "activities.R");
     }, error = function(e) {
       loggit("ERROR", "Problem with inserting new activities", error = ExceptionToString(e), file = "activities.R");
-      #TODO: message 
+      
+      showNotification(
+        "Problem with downloading new data.",
+        duration = 10, 
+        type = "error"
+      )
     })
   }
   
@@ -43,6 +53,13 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
     loggit("INFO", "Activities selected from DB.", count = length(activitiesLocal), file = "activities.R");
   }, error = function(e) {
     loggit("ERROR", "Problem with selecting activities from DB", error = ExceptionToString(e), file = "activities.R");
+    
+    showNotification(
+      "Problem with getting data.",
+      duration = 10, 
+      type = "error"
+    )
+    
     return();
   })
   
@@ -63,6 +80,12 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   
   activities <- activities[order(nrow(activities):1),];
   
+  showNotification(
+    "All activities are downloaded.",
+    duration = 2, 
+    type = "message"
+  )
+  
   return(activities);
 }
 
@@ -79,13 +102,22 @@ downloadActivitiesStreams <- function(stoken, selection, activitiesAll, dbPath) 
       loggit("INFO", paste("Activity stream has been downloaded and inserted.", activityId = activitiesAll[index,]$Id),
              file = "activities.R");
       
-      #TODO: progress
+      showNotification(
+        paste("Stream of " , activitiesAll[index,]$Name , " downloaded"),
+        duration = 2, 
+        type = "message"
+      )
     }, error = function(e) {
 
       loggit("ERROR", paste("Problem with downloading activity stream from DB", activityId = activitiesAll[index,]$Id),
              error = ExceptionToString(e), 
              file = "activities.R");
-      #TODO: Message
+      
+      showNotification(
+        paste("Problem with downloading stream for ", activitiesAll[index,]$Name),
+        duration = 10, 
+        type = "error"
+      )
     })
   }
 }

@@ -119,3 +119,61 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
   
   dbExecute(db, "COMMIT;");
 }
+
+GetActivity <- function(Id) {
+  ## Get activity from ./Data.db by Activity Id.
+  db <- dbConnect(SQLite(), dbname=dbPath);
+  
+  #Activity
+  query <- paste("select * from Activity where Id =", Id, ';');
+  result <- dbGetQuery(db, query);
+  
+  #UserId
+  UserId <- result$IdUser;
+  
+  #Stream
+  query <- paste("select * from ActivityPoint where ActivityId = ", Id, ';');
+  Stream <- dbGetQuery(db, query);
+  
+  Activity <- list(UserId = UserId, Activity = result, Stream = Stream);
+  
+  return(Activity);
+}
+
+GetActivities <- function(dbPath, Ids) {
+  ## Get list of activities from ./Data.db by Activity Ids.
+  db <- dbConnect(SQLite(), dbname=dbPath);
+  
+  #Activity
+  IdsInString <- paste(Ids, collapse = ",");
+  query <- paste("select * from Activity where Id in (", IdsInString, ');');
+  result <- dbGetQuery(db, query);
+  
+  #Streams
+  query <- paste("select * from ActivityPoint where ActivityId in (", IdsInString, ');');
+  Streams <- dbGetQuery(db, query);
+  
+  Activities <- vector("list", nrow(result));
+  for(i in 1:nrow(result)) {
+    activity <- result[i,];
+    UserId <- result[i,'IdUser'];
+    Stream <- Streams[Streams$ActivityId == result[i, 'Id'],]
+    Activity <- list(UserId = UserId, Activity = activity, Stream = Stream);
+    
+    Activities[i] <- list(Activity);
+  }
+  
+  return(Activities);
+}
+
+GetActivitiesInDateRange <- function(dbPath, From, To, UserId) {
+  From <- as.integer(as.POSIXct(strptime(From, "%d/%m/%Y")));
+  To <- as.integer(as.POSIXct(strptime(To, "%d/%m/%Y")));
+  
+  db <- dbConnect(SQLite(), dbname=dbPath);
+  query <- paste('select Id from Activity where IdUser = ', UserId , ' and StartDate >= ',
+                 From, ' and StartDate <= ', To ,';');
+  result <- dbGetQuery(db, query);
+  
+  return(GetActivities(dbPath, result[[1]]))
+}
