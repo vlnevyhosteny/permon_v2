@@ -36,7 +36,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   }
   
   activities <- data.frame(Id = numeric(), Name = character(), Type = character(), Date = character(), 
-                           Distance = double(), stringsAsFactors = FALSE);
+                           Distance = double(), HasStream = character(), stringsAsFactors = FALSE);
   
   tryCatch({
     activitiesLocal <- GetActivitiesForUser(dbPath, stoken$credentials$athlete$id);
@@ -47,11 +47,17 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
   })
   
   for (act in activitiesLocal) {
+    HasStream <- "FALSE";
+    if(act$Activity$HasStream) {
+      HasStream <- "TRUE";
+    }
+    
     activities[nrow(activities) + 1,] = list(Id = act$Activity$Id,
                                              Name = act$Activity$Name, 
                                              Type = act$Activity$Type,
                                              Date = convertEpochToDateTime(act$Activity$StartDate), 
-                                             Distance = paste(round((act$Activity$Distance / 1000), 2), " km"))
+                                             Distance = paste(round((act$Activity$Distance / 1000), 2), " km"),
+                                             HasStream = HasStream);
     
   }
   

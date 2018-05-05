@@ -47,6 +47,8 @@ InsertActivities <- function(dbPath, activities) {
     db <- dbConnect(SQLite(), dbname=dbPath)
     query <- "";
     
+    dbExecute(db, "BEGIN")
+    
     for(activity in activities) {
       StartDate <- as.integer(as.POSIXct(strptime(activity$start_date_local, "%Y-%m-%dT%XZ")));
       Name <- gsub("'", "", activity$name)
@@ -58,6 +60,8 @@ InsertActivities <- function(dbPath, activities) {
       
       dbExecute(db, query)
     }
+    
+    dbExecute(db, "END")
   }
 }
 
@@ -66,7 +70,9 @@ GetActivitiesForUser <- function(dbPath, athleteId, withStreams = FALSE) {
   db <- dbConnect(SQLite(), dbname=dbPath);
   
   #Activity
-  query <- paste("select * from Activity where IdUser in (", athleteId, ');');
+  query <- paste("select a.*, case when p.Id is not null then 1 else 0 end as HasStream  from Activity",
+                 " a left join ActivityPoint p on p.ActivityId = a.Id where IdUser in (", athleteId, ') group by a.Id;');
+  
   result <- dbGetQuery(db, query);
   
   #Streams
@@ -97,9 +103,10 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
     query <- paste("delete from ActivityPoint where ActivityId=", ActivityId, ";")
     dbExecute(db, query)
   }
-  
-  query <- "PRAGMA foreign_keys = ON;"
-  dbExecute(db, query)
+
+  dbExecute(db, "PRAGMA synchronous=OFF");
+    
+  dbExecute(db, "BEGIN TRANSACTION");
   
   query <- "insert into ActivityPoint (Lat, Lng, Time, Distance, Alt, Heartrate, Grade, ActivityId) values "
   
@@ -118,4 +125,6 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
   query <- paste(query, ";")
   
   result <- dbExecute(db, query)
+  
+  dbExecute(db, "END TRANSACTION");
 }
