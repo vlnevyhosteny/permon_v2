@@ -82,7 +82,7 @@ TRIMPExponentialHRScalingForActivity <- function(Stream, HRMax, HRMin, Male = TR
 #'
 #' @return Vrací hodnotu reálného čísla reprezentující hodnotu TRIMP, NULL v případě nemožnosti výpočtu
 #' @export
-CalculateOrGetTRIMPExponentialHRScalingForActivity <- function(Activity, Stream, HRMax, HRMin, Male = TRUE, 
+CalculateOrGetTRIMPExponentialHRScalingForActivity <- function(dbPath, Activity, Stream, HRMax, HRMin, Male = TRUE, 
                                                                TimeUnitInSecond = 1, TimeUnitsInMinute = 60,
                                                                Recalculate = FALSE) 
 {
@@ -91,9 +91,9 @@ CalculateOrGetTRIMPExponentialHRScalingForActivity <- function(Activity, Stream,
                                                  TimeUnitsInMinute);
     
     if(is.null(TRIMP) == FALSE) {
-      db <- dbConnect(SQLite(), dbname=DbPath);
+      db <- dbConnect(SQLite(), dbname=dbPath);
       query <- paste("update Activity set TRIMP = ", TRIMP, ' where Id = ', Activity$Id);
-      dbGetQuery(db, query);
+      dbExecute(db, query);
     }
     
     return(TRIMP);
@@ -113,17 +113,15 @@ CalculateOrGetTRIMPExponentialHRScalingForActivity <- function(Activity, Stream,
 #'
 #' @return Vrací pojmenovaný seznam hodnot TRIMP. Jména hodnot jsou jednotlivé datumy v rámci zvoleného časového období.
 #' @export
-TRIMPExponentialHRScalingForDateRange <- function(From, To, UserId, Male = TRUE, 
+TRIMPExponentialHRScalingForDateRange <- function(dbPath, From, To, UserId, Male = TRUE, 
                                                   TimeUnitInSecond = 1, TimeUnitsInMinute = 60)
 {
-  db <- dbConnect(SQLite(), dbname=DbPath);
+  db <- dbConnect(SQLite(), dbname=dbPath);
   query <- paste("select HRMax, HRMin from User where Id = ", UserId, ';');
   HRStats <- dbGetQuery(db, query);
   HRStats <- HRStats[1,];
   
-  source(PathToGetActivityScript);
-  
-  Activities <- GetActivitiesInDateRange(From, To, UserId);
+  Activities <- GetActivitiesInDateRange(dbPath, From, To, UserId);
   
   Days <- seq(as.Date(From, "%d/%m/%Y"), as.Date(To, "%d/%m/%Y"), "days");
   TRIMPEachDay <- c(rep(as.numeric(0), length(Days)));
@@ -134,7 +132,8 @@ TRIMPExponentialHRScalingForDateRange <- function(From, To, UserId, Male = TRUE,
     Date <- as.Date(as.POSIXct(Activity$Activity[1,'StartDate'], origin="1970-01-01"));
     Date <- as.character(Date);
     
-    TRIMPCalculated <- CalculateOrGetTRIMPExponentialHRScalingForActivity(Activity$Activity,
+    TRIMPCalculated <- CalculateOrGetTRIMPExponentialHRScalingForActivity(dbPath, 
+                                                                          Activity$Activity,
                                                                           Activity$Stream,
                                                                           HRStats$HRMax,
                                                                           HRStats$HRMin);
@@ -164,10 +163,10 @@ TRIMPExponentialHRScalingForDateRange <- function(From, To, UserId, Male = TRUE,
 #' @export
 #' 
 #' @examples V případě, že k1 je větší než k2, sportovec regeneruje pomaleji.
-PerformanceBanisterModel <- function(From, To, UserId, Male = TRUE,
+PerformanceBanisterModel <- function(dbPath, From, To, UserId, Male = TRUE,
                                      k1 = 1.0, k2 = 1.8, r1 = 49, r2 = 11, p0 = 0,
                                      CalculateNextFewEmptyDays = TRUE) {
-  TRIMP <- TRIMPExponentialHRScalingForDateRange(From, To, UserId, Male);
+  TRIMP <- TRIMPExponentialHRScalingForDateRange(dbPath, From, To, UserId, Male);
   
   if(CalculateNextFewEmptyDays) {
     Names = names(TRIMP);

@@ -122,7 +122,7 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
 
 GetActivity <- function(Id) {
   ## Get activity from ./Data.db by Activity Id.
-  db <- dbConnect(SQLite(), dbname=DbPath);
+  db <- dbConnect(SQLite(), dbname=dbPath);
   
   #Activity
   query <- paste("select * from Activity where Id =", Id, ';');
@@ -140,9 +140,9 @@ GetActivity <- function(Id) {
   return(Activity);
 }
 
-GetActivities <- function(Ids) {
+GetActivities <- function(dbPath, Ids) {
   ## Get list of activities from ./Data.db by Activity Ids.
-  db <- dbConnect(SQLite(), dbname=DbPath);
+  db <- dbConnect(SQLite(), dbname=dbPath);
   
   #Activity
   IdsInString <- paste(Ids, collapse = ",");
@@ -166,14 +166,14 @@ GetActivities <- function(Ids) {
   return(Activities);
 }
 
-GetActivitiesInDateRange <- function(From, To, UserId) {
+GetActivitiesInDateRange <- function(dbPath, From, To, UserId) {
   From <- as.integer(as.POSIXct(strptime(From, "%d/%m/%Y")));
   To <- as.integer(as.POSIXct(strptime(To, "%d/%m/%Y")));
   
-  db <- dbConnect(SQLite(), dbname=DbPath);
+  db <- dbConnect(SQLite(), dbname=dbPath);
   query <- paste('select Id from Activity where IdUser = ', UserId , ' and StartDate >= ',
                  From, ' and StartDate <= ', To ,';');
   result <- dbGetQuery(db, query);
   
-  return(GetActivities(result[[1]]))
+  return(GetActivities(dbPath, result[[1]]))
 }

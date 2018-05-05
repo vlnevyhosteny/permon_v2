@@ -33,6 +33,8 @@ source("helpers/exceptions.R");
 
 source("calc/trainingImpulsePerformanceCalc.R")
 
+source("controllers/banisterController.R")
+
 setLogFile(Config$app$logFilePath);
 loggit("INFO", "PERMON has started", file = "app.R")
 
@@ -85,6 +87,10 @@ server <- function(input, output, session) {
       downloadActivitiesStreams(token, input$activitiesTable_rows_selected, activities, Config$app$dbPath)
     }
   })
+  
+  output$BanisterPlot <- renderPlot({
+    renderBanister(Config$app$dbPath, token, input)
+  });
 }
 
 shinyApp(uiFunc, server)
