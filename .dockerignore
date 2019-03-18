@@ -1,0 +1,16 @@
+.git
+Dockerfile
+.DS_Store
+.gitignore
+.Rhistory
+.RProj.user
+
+/PERMON_v2/.DS_Store
+/PERMON_v2/.gitignore
+/PERMON_v2/.Rhistory
+/PERMON_v2/.RProj.user
+/PERMON_v2/.RData
+/PERMON_v2/data.db
+/PERMON_v2/log.json
+/PERMON_v2/PERMON_v2.RProj
+/PERMON_v2/playground
