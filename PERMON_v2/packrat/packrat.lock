@@ -118,8 +118,8 @@ Hash: 0680d39cd16df08b778d23dead70abdd
 
 Package: cli
 Source: CRAN
-Version: 1.0.1
-Hash: a742a3229dbf7085c3a737af10e5065b
+Version: 1.1.0
+Hash: bc4e54014c2049f2605ad0c3ba0cce6b
 Requires: assertthat, crayon
 
 Package: colorspace
@@ -153,6 +153,13 @@ Package: data.table
 Source: CRAN
 Version: 1.12.0
 Hash: d382bb97e2d9dd05ad8070e41513dcb1
+
+Package: devtools
+Source: CRAN
+Version: 1.13.6
+Hash: 9a137acbaeb61f440b1c1dedc1fbcaec
+Requires: digest, git2r, httr, jsonlite, memoise, rstudioapi, whisker,
+    withr
 
 Package: digest
 Source: CRAN
@@ -208,6 +215,11 @@ Source: CRAN
 Version: 0.8.0
 Hash: 20096a5e9c34eaf14728206fb326f8d9
 Requires: Rcpp, ggplot2, scales
+
+Package: git2r
+Source: CRAN
+Version: 0.24.0
+Hash: c0f2721353aeed78bbc579bfeda4be40
 
 Package: glue
 Source: CRAN
@@ -362,11 +374,6 @@ GithubRepo: packrat
 GithubUsername: rstudio
 GithubRef: master
 GithubSha1: 9dee5d88ee41e82382af5acea14107f4eeb8d283
-RemoteHost: api.github.com
-RemoteRepo: packrat
-RemoteUsername: rstudio
-RemoteRef: master
-RemoteSha: 9dee5d88ee41e82382af5acea14107f4eeb8d283
 
 Package: pillar
 Source: CRAN
@@ -414,25 +421,25 @@ Hash: f9a2528572320c1e0bc8783dfd6e0fae
 
 Package: purrr
 Source: CRAN
-Version: 0.3.1
-Hash: b38aa54611eb7c5829c63ba298eeed43
+Version: 0.3.2
+Hash: d7bb7f62bb3af2d6510f50cb7190a060
 Requires: magrittr, rlang
 
 Package: rStrava
 Source: github
-Version: 0.17
-Hash: ce40e51098876464af7ba5b12037e101
+Version: 0.19
+Hash: 8986beb8191db179a2479f040d5130fc
 Requires: RCurl, XML, bitops, dplyr, geosphere, ggmap, ggplot2,
     ggrepel, httr, magrittr, plyr, purrr, rgbif, tibble, tidyr
 GithubRepo: rStrava
 GithubUsername: fawda123
 GithubRef: master
-GithubSha1: c98792c2f98b5d7e0a5e8b4aa1de3ba55439e43f
-RemoteHost: api.github.com
+GithubSha1: 80b59bfbdf28b6874da49da8e3ff0eb07d9f1e59
+RemoteHost: https://api.github.com
 RemoteRepo: rStrava
 RemoteUsername: fawda123
 RemoteRef: master
-RemoteSha: c98792c2f98b5d7e0a5e8b4aa1de3ba55439e43f
+RemoteSha: 80b59bfbdf28b6874da49da8e3ff0eb07d9f1e59
 
 Package: reshape2
 Source: CRAN
@@ -470,6 +477,11 @@ Hash: a30b0c41b60d981f41dc8c98f2136297
 Requires: base64enc, evaluate, htmltools, jsonlite, knitr, mime,
     stringr, tinytex, yaml
 
+Package: rstudioapi
+Source: CRAN
+Version: 0.9.0
+Hash: e5e648a0944df6ea634d8173d09e236f
+
 Package: scales
 Source: CRAN
 Version: 1.0.0
@@ -498,11 +510,6 @@ GithubRepo: ShinySky
 GithubUsername: AnalytixWare
 GithubRef: master
 GithubSha1: 741153f2e4883135a8f3a8b81250c1bca0c54b7f
-RemoteHost: api.github.com
-RemoteRepo: ShinySky
-RemoteUsername: AnalytixWare
-RemoteRef: master
-RemoteSha: 741153f2e4883135a8f3a8b81250c1bca0c54b7f
 
 Package: sourcetools
 Source: CRAN
@@ -539,8 +546,8 @@ Hash: dc2a997b1b9a2d3f9c234491153cb951
 
 Package: tibble
 Source: CRAN
-Version: 2.0.1
-Hash: d2a00b9a314cfad8f6b51e2c97aaff5c
+Version: 2.1.1
+Hash: e9d844f966bd4d40556b50c3b2239646
 Requires: cli, crayon, fansi, pillar, pkgconfig, rlang
 
 Package: tidyr
