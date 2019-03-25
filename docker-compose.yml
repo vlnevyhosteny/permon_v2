@@ -13,7 +13,7 @@ services:
     # below.
     user: 'root'
     ports:
-      - '80:3838'
+      - '8100:3838'
     #volumes:
       #- 'shiny_logs:/var/log/shiny-server'
       # Comment the line below out for initial testing. With it commented out,

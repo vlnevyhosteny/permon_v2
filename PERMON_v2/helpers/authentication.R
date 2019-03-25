@@ -36,7 +36,7 @@ APP_URL <- if (interactive()) {
   options(shiny.port = 8100)
   "http://localhost:8100/"
 } else {
-  "https://servername/path-to-app"
+  "http://localhost:8100/"
 }
 
 app <- oauth_app(Config$app$name,
