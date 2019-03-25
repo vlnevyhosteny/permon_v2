@@ -20,7 +20,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       activitiesRaw <- getActivitiesAfterStrava(stoken, lastestActivity);
       loggit("INFO", "Activities downloaded.", count = length(activitiesRaw), file = "activities.R");
     }, error = function(e) {
-      loggit("ERROR", "Problem with downloading data", error = ExceptionToString(e), file = "activities.R");
+      loggit("ERROR", "Problem with downloading data", error = ExceptionToString(e), file = "activities.R", echo = TRUE);
       
       showNotification(
         "Problem with downloading new data.",
@@ -69,7 +69,7 @@ getActivitiesDataTable <- function(stoken, syncWithDb = FALSE, dbPath = NULL) {
       HasStream <- "TRUE";
     }
     
-    activities[nrow(activities) + 1,] = list(Id = act$Activity$Id,
+    activities[nrow(activities) + 1,] = list(Id = as.numeric(act$Activity$Id),
                                              Name = act$Activity$Name, 
                                              Type = act$Activity$Type,
                                              Date = convertEpochToDateTime(act$Activity$StartDate), 
