@@ -120,7 +120,7 @@ InsertStream <- function(dbPath, Stream, ActivityId) {
   dbExecute(db, "COMMIT;");
 }
 
-GetActivity <- function(Id) {
+GetActivity <- function(Id, dbPath = NULL) {
   ## Get activity from ./Data.db by Activity Id.
   db <- dbConnect(SQLite(), dbname=dbPath);
   

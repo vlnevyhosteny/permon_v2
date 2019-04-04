@@ -16,6 +16,7 @@ library(shinysky)
 library(sqldf)
 library(loggit)
 library(RSQLite)
+library(ggplot2)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -34,6 +35,7 @@ source("helpers/exceptions.R");
 source("calc/trainingImpulsePerformanceCalc.R")
 
 source("controllers/banisterController.R")
+source("controllers/activityStatsControllers.R")
 
 setLogFile(Config$app$logFilePath);
 loggit("INFO", "PERMON has started", file = "app.R")
@@ -77,6 +79,7 @@ server <- function(input, output, session) {
   output$UserImage <- renderUserImageFunc(token);
   
   activities <- getActivitiesDataTable(token, Config$app$dbPath, syncWithDb = TRUE)
+  selectedActivities <<- NULL;
   
   output$activitiesTable = DT::renderDataTable({
     activities
@@ -86,6 +89,22 @@ server <- function(input, output, session) {
     if(is.null(token) == FALSE) {
       downloadActivitiesStreams(token, input$activitiesTable_rows_selected, activities, Config$app$dbPath)
     }
+  })
+  
+  observeEvent(input$activityStats, {
+    if(is.null(token) == FALSE) {
+      if(activities[input$activitiesTable_rows_selected[[1]], 'HasStream']) {
+        selectedActivities <<- activities[input$activitiesTable_rows_selected[[1]], ];
+        
+        updateTabsetPanel(session, 'mainTabset', 
+                          selected = 'activityStatsPanel');
+        
+        # add to output
+        output$ActivityStats <- renderPlot({
+          renderActivityStats(Config$app$dbPath, activities[input$activitiesTable_rows_selected[[1]], 'Id'])
+        });
+      }
+    } 
   })
   
   output$BanisterPlot <- renderPlot({
