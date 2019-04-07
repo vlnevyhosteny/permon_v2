@@ -170,13 +170,23 @@ convertStreamRawToDataFrame <- function(streamRaw, activityId) {
 }
 
 hasValidStream <- function(stream, column) {
-  for(i in 1:nrow(stream)) {
-    if(stream[i, column] < 0) {
-      return(FALSE);
+  if(column != 'Grade') {
+    for(i in 1:nrow(stream)) {
+      if(stream[i, column] < 0) {
+        return(FALSE);
+      }  
     }
+    
+    return(TRUE);
+  } else {
+    for(i in 1:nrow(stream)) {
+      if(stream[i, column] != -1) {
+        return(TRUE);
+      }  
+    }
+    
+    return(FALSE);
   }
-  
-  return(TRUE);
 }
 
 hasAltitudeStreamData <- function(activity) {

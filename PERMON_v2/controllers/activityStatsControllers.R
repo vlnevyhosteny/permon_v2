@@ -8,15 +8,21 @@ renderActivityStats <- function(dbPath, activityId, statType = 'Alt') {
     activity <<- GetActivity(activityId, dbPath);
     
     if(hasStreamData(activity$Stream, statType) == FALSE) {
+      showNotification(
+        "Stream data not available.",
+        duration = 2, 
+        type = "message"
+      );
+      
       return();
     }
     
     variable = switch(statType,
                       "Alt" = round(activity$Stream$Alt),
                       "Heartrate" = activity$Stream$Heartrate,
-                      "Grade" = activity$Strean$Grade)
+                      "Grade" = as.numeric(activity$Stream$Grade))
     
-    plotData <- data.frame(lat=activity$Stream$Lat, lon=activity$Stream$Lng, variable=variable)
+    plotData <<- data.frame(lat=activity$Stream$Lat, lon=activity$Stream$Lng, variable=variable)
     
     f = 0.1
     bbox <- ggmap::make_bbox(plotData$lon, plotData$lat, f = f)
