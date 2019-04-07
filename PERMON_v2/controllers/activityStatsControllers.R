@@ -1,24 +1,31 @@
-renderActivityStats <- function(dbPath, activityId, statType = 'alt') {
+renderActivityStats <- function(dbPath, activityId, statType = 'Alt') {
   tryCatch({
-    allStatTypes = c('alt', 'grade', 'speed');
+    allStatTypes = c('Alt', 'Heartrate', 'Grade');
     if(!(statType %in% allStatTypes)) {
       return();
     }
     
-    activity = GetActivity(activityId, dbPath);
+    activity <<- GetActivity(activityId, dbPath);
     
-    plotData <- data.frame(lat=foo$Stream$Lat, lon=foo$Stream$Lng, distance=foo$Stream$Distance, ele=foo$Stream$Alt)
+    if(hasStreamData(activity$Stream, statType) == FALSE) {
+      return();
+    }
     
-    f = 0.2
+    variable = switch(statType,
+                      "Alt" = round(activity$Stream$Alt),
+                      "Heartrate" = activity$Stream$Heartrate,
+                      "Grade" = activity$Strean$Grade)
+    
+    plotData <- data.frame(lat=activity$Stream$Lat, lon=activity$Stream$Lng, variable=variable)
+    
+    f = 0.1
     bbox <- ggmap::make_bbox(plotData$lon, plotData$lat, f = f)
     
     maptype = 'satellite'
     map <- suppressWarnings(suppressMessages(ggmap::get_map(bbox, maptype = maptype)))
     
-    plot_data <- data.frame(x = plotData$lon, value = plotData$lat, value = plotData$ele)
-    
-    ggmap::ggmap(map) + geom_point(data = data, aes(x = lon, y = lat, color = ele, group = ele), lwd=0.3) + scale_color_gradient2(low = 'green', mid = 'yellow', high = 'red',
-                              name = 'Elevation', midpoint = median(data$ele))
+    ggmap::ggmap(map) + geom_point(data = plotData, aes(x = lon, y = lat, color = variable, group = variable), lwd=0.3) + scale_color_gradient2(low = 'green', mid = 'yellow', high = 'red',
+                              name = statType, midpoint = median(plotData$variable))
   }, error = function(e) {
     loggit("ERROR", paste("Problem with calculating activity stats",
            error = ExceptionToString(e), 

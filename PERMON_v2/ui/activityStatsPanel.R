@@ -1,4 +1,6 @@
 activityStatsPanel <- tabPanel("Activity stats", value = 'activityStatsPanel', 
-                               p('lool'),
-                               plotOutput("ActivityStats")
+                               selectInput('ActivityStatsSelect', 'Choose variable',
+                                           c('Alt', 'Heartrate', 'Grade')),
+                               actionButton("ActivityStatsUpdateButton", "Update"),
+                               plotOutput("ActivityStats", height = 800)
 )

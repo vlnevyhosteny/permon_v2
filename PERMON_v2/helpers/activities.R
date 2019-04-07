@@ -168,3 +168,35 @@ convertStreamRawToDataFrame <- function(streamRaw, activityId) {
   
   return(stream);
 }
+
+hasValidStream <- function(stream, column) {
+  for(i in 1:nrow(stream)) {
+    if(stream[i, column] < 0) {
+      return(FALSE);
+    }
+  }
+  
+  return(TRUE);
+}
+
+hasAltitudeStreamData <- function(activity) {
+  return('Alt' %in% colnames(activity$Stream) && colnames(activity$Stream)[0] > -1);
+}
+
+hasStreamData <- function(stream, column) {
+  return(column %in% colnames(stream) && hasValidStream(stream, column));  
+}
+
+validStreams <- function(stream) {
+  streams <- c();
+  
+  if(hasStreamData(stream, 'Alt')) {
+    streams <- c(streams, 'Alt');
+  }
+  
+  if(hasStreamData(stream, 'Heartrate')) {
+    streams <- c(streams, 'Heartrate');
+  }
+  
+  return(streams);
+}

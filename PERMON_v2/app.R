@@ -17,6 +17,7 @@ library(sqldf)
 library(loggit)
 library(RSQLite)
 library(ggplot2)
+library(htmlwidgets)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -89,7 +90,7 @@ server <- function(input, output, session) {
     if(is.null(token) == FALSE) {
       downloadActivitiesStreams(token, input$activitiesTable_rows_selected, activities, Config$app$dbPath)
     }
-  })
+  });
   
   observeEvent(input$activityStats, {
     if(is.null(token) == FALSE) {
@@ -105,7 +106,17 @@ server <- function(input, output, session) {
         });
       }
     } 
-  })
+  });
+  
+  observeEvent(input$ActivityStatsUpdateButton, {
+    if(is.null(selectedActivities) == FALSE && nrow(selectedActivities) > 0) {
+      selectedStreamType <- input$ActivityStatsSelect;
+      
+      output$ActivityStats <- renderPlot({
+        renderActivityStats(Config$app$dbPath, activities[input$activitiesTable_rows_selected[[1]], 'Id'], selectedStreamType)
+      });
+    }
+  });
   
   output$BanisterPlot <- renderPlot({
     renderBanister(Config$app$dbPath, token, input)
