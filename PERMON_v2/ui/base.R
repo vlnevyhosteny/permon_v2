@@ -2,6 +2,7 @@ source("ui/sideBarUserInfo.R");
 source("ui/activitiesDataTable.R")
 source("ui/bannisterTabPanel.R")
 source("ui/activityStatsPanel.R")
+source("ui/heatmapPanel.R")
 
 ui <- fluidPage(
   
@@ -17,7 +18,8 @@ ui <- fluidPage(
       tabsetPanel(id = 'mainTabset',
         activitiesPanel, 
         bannisterPanel,
-        activityStatsPanel)
+        activityStatsPanel,
+        heatmapPanel)
     )
   )
 )

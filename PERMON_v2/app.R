@@ -18,6 +18,7 @@ library(loggit)
 library(RSQLite)
 library(ggplot2)
 library(htmlwidgets)
+library(viridis)
 
 source("helpers/configuration.R");
 Config <<- getConfig("resources/configuration/app_config.json");
@@ -37,6 +38,7 @@ source("calc/trainingImpulsePerformanceCalc.R")
 
 source("controllers/banisterController.R")
 source("controllers/activityStatsControllers.R")
+source("controllers/heatmapController.R")
 
 setLogFile(Config$app$logFilePath);
 loggit("INFO", "PERMON has started", file = "app.R")
@@ -121,6 +123,10 @@ server <- function(input, output, session) {
   output$BanisterPlot <- renderPlot({
     renderBanister(Config$app$dbPath, token, input)
   });
+  
+  output$Heatmap <- renderPlot({
+    renderHeatmap(Config$app$dbPath, token$credentials$athlete$id, input)
+  })
 }
 
 shinyApp(uiFunc, server)

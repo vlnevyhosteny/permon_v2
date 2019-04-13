@@ -194,6 +194,10 @@ hasAltitudeStreamData <- function(activity) {
 }
 
 hasStreamData <- function(stream, column) {
+  if(nrow(stream) <= 0) {
+    return(FALSE);
+  }
+  
   return(column %in% colnames(stream) && hasValidStream(stream, column));  
 }
 
