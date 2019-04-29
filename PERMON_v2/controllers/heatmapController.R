@@ -20,12 +20,12 @@ renderHeatmap <- function(dbPath, userId, input)
     f = 0.1
     bbox <- ggmap::make_bbox(plotData$lon, plotData$lat, f = f)
     
-    maptype = 'satellite'
-    map <- suppressWarnings(suppressMessages(ggmap::get_map(bbox, maptype = maptype)))
+    maptype = 'terrain'
+    map <- suppressWarnings(suppressMessages(ggmap::get_map(bbox, source = 'osm', maptype = maptype)))
     
     if(input$HeatmapTypeRadio == '1') {
       ggmap::ggmap(map) +
-        stat_density2d(data = plotData, aes(x = lon, y = lat, fill = ..density..), geom = 'tile', contour = F, alpha = .5) +
+        stat_density2d(data = plotData, aes(x = lon, y = lat, fill = ..density..), geom = 'tile', n = 200, contour = F, alpha = .5) +
         scale_fill_viridis(option = 'inferno')
     } else {
       ggmap::ggmap(map) +
